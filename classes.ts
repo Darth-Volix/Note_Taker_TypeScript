@@ -96,7 +96,7 @@ export class DocumentManager {
         }
 
         while (!noteBody) {
-            noteBody = await this.askQuestion("Enter the body of your note: ");
+            noteBody = await this.askQuestion("Enter your note: ");
             if (noteBody === null) {
                 console.log("Note body cannot be null");
             }
@@ -111,7 +111,38 @@ export class DocumentManager {
         if (folder) {
             folder.notes.push(note);
         } else {
-            console.log("Folder not found");
+            console.log("Folder not found or does not exist.");
         }
+    }
+
+    // View the contents of a folder
+    displayFolderContents(folderName: string) : void {
+        const folder = this.folders.find(folder => folder.folderName === folderName);
+
+        if (folder){
+            folder.notes.forEach((Note) => {
+                console.log("------------------------------------------------");
+                console.log(`Date: ${Note.notetDate}`);
+                console.log(`Title: ${Note.noteTitle}`);
+                console.log(`Body: ${Note.noteBody}`);
+                console.log("------------------------------------------------");
+            });
+        } else {
+            console.log("Folder not found or does not exist.");
+        }
+    }
+
+    // Edit a note
+    async editNote(): Promise<void> {
+        let noteName: string | null = null;
+
+        while (!noteName) {
+            noteName = await this.askQuestion("What is the title of the note you would like to edit?: ");
+            if (noteName === null) {
+                console.log("The title of the note you want to edit cannot be null.")
+                noteName = null;
+            }
+        }
+
     }
 }
