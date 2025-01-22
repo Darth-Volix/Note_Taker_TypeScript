@@ -43,6 +43,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.DocumentManager = exports.Folder = exports.Note = void 0;
 // Import the readline module
 const readline = __importStar(require("readline"));
 // Define the Classes
@@ -54,6 +55,7 @@ class Note {
         this.noteBody = noteBody;
     }
 }
+exports.Note = Note;
 class Folder {
     // Constructor 
     constructor(folderName) {
@@ -61,6 +63,7 @@ class Folder {
         this.notes = [];
     }
 }
+exports.Folder = Folder;
 class DocumentManager {
     // Constructor
     constructor() {
@@ -124,3 +127,4 @@ class DocumentManager {
         }
     }
 }
+exports.DocumentManager = DocumentManager;

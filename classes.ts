@@ -18,7 +18,7 @@ interface FolderInterface {
 
 // Define the Classes
 
-class Note implements NoteInterface {
+export class Note implements NoteInterface {
     // Properties
     notetDate: Date;
     noteTitle: string;
@@ -32,7 +32,7 @@ class Note implements NoteInterface {
     }
 }
 
-class Folder implements FolderInterface{
+export class Folder implements FolderInterface{
     // Properties
     folderName: string;
     notes: Note[];
@@ -44,7 +44,7 @@ class Folder implements FolderInterface{
     }
 }
 
-class DocumentManager {
+export class DocumentManager {
     // Properties
     folders: Folder[];
     rl: readline.Interface;
