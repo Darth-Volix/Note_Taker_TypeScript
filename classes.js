@@ -44,13 +44,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DocumentManager = exports.Folder = exports.Note = void 0;
-// Import the readline module
 const readline = __importStar(require("readline"));
 // Define the Classes
 class Note {
     // Constructor
     constructor(noteTitle, noteBody) {
-        this.notetDate = new Date();
+        this.noteDate = new Date();
         this.noteTitle = noteTitle;
         this.noteBody = noteBody;
     }
@@ -116,6 +115,14 @@ class DocumentManager {
             return new Note(noteTitle, noteBody);
         });
     }
+    // Display a note to the terminal
+    displayNote(note) {
+        console.log("------------------------------------------------");
+        console.log(`Date: ${note.noteDate}`);
+        console.log(`Title: ${note.noteTitle}`);
+        console.log(`Body: ${note.noteBody}`);
+        console.log("------------------------------------------------");
+    }
     // Add a note to a folder
     assignNoteToFolder(note, folderName) {
         const folder = this.folders.find(folder => folder.folderName === folderName);
@@ -128,31 +135,93 @@ class DocumentManager {
     }
     // View the contents of a folder
     displayFolderContents(folderName) {
-        const folder = this.folders.find(folder => folder.folderName === folderName);
-        if (folder) {
-            folder.notes.forEach((Note) => {
-                console.log("------------------------------------------------");
-                console.log(`Date: ${Note.notetDate}`);
-                console.log(`Title: ${Note.noteTitle}`);
-                console.log(`Body: ${Note.noteBody}`);
-                console.log("------------------------------------------------");
-            });
-        }
-        else {
-            console.log("Folder not found or does not exist.");
-        }
+        return __awaiter(this, void 0, void 0, function* () {
+            const folder = yield this.searchForFolder();
+            if (folder) {
+                folder.notes.forEach((Note) => {
+                    this.displayNote(Note);
+                });
+            }
+            else {
+                console.log("Folder not found or does not exist.");
+            }
+        });
     }
     // Edit a note
     editNote() {
         return __awaiter(this, void 0, void 0, function* () {
             let noteName = null;
+            const folder = yield this.searchForFolder();
             while (!noteName) {
                 noteName = yield this.askQuestion("What is the title of the note you would like to edit?: ");
-                if (noteName === null) {
-                    console.log("The title of the note you want to edit cannot be null.");
-                    noteName = null;
+                if (noteName === null || "") {
+                    console.log("The title of the note you want to edit cannot be null or empty.");
                 }
             }
+            const note = folder === null || folder === void 0 ? void 0 : folder.notes.find(note => note.noteTitle === noteName);
+            if (!note) {
+                console.log("Note does not exist.");
+            }
+            else {
+                console.log("Here are the details of the note: ");
+                this.displayNote(note);
+                const newNoteBody = yield this.askQuestion("Enter your changes to the body of the note: ");
+                note.noteBody = newNoteBody;
+                console.log("Note updated successfully.");
+            }
+        });
+    }
+    searchForFolder() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let folderName = null;
+            let openOrSearch = null;
+            while (!openOrSearch) {
+                openOrSearch = yield this.askQuestion("Are you wanting to search for a folder or open a folder? (type 'Search' or 'Open'): ");
+                if (openOrSearch.toLowerCase() === 'search') {
+                    while (!folderName) {
+                        folderName = yield this.askQuestion("What is the name of the folder you are wanting to look for?: ");
+                        if (!folderName || folderName.trim() === "") {
+                            console.log("The name of the folder you are searching for cannot be null or empty.");
+                            folderName = null;
+                        }
+                        else {
+                            const folder = this.folders.find(folder => folder.folderName === folderName);
+                            if (folder) {
+                                return folder;
+                            }
+                            else {
+                                console.log("Folder not found.");
+                                folderName = null;
+                            }
+                        }
+                    }
+                }
+                else if (openOrSearch.toLowerCase() === 'open') {
+                    while (!folderName) {
+                        folderName = yield this.askQuestion("What is the name of the folder you are wanting to look for?: ");
+                        if (!folderName || folderName.trim() === "") {
+                            console.log("The name of the folder you are opening cannot be null or empty.");
+                            folderName = null;
+                        }
+                        else {
+                            const folder = this.folders.find(folder => folder.folderName === folderName);
+                            if (folder) {
+                                return folder;
+                            }
+                            else {
+                                console.log("Folder not found.");
+                                folderName = null;
+                            }
+                        }
+                    }
+                }
+                else {
+                    console.log("That is not a valid option, please try again.");
+                    openOrSearch = null;
+                }
+            }
+            // Should never be reached
+            return null;
         });
     }
 }
