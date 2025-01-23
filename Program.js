@@ -46,7 +46,7 @@ function main() {
                     console.log('Goodbye!');
                     process.exit();
                 default:
-                    console.log('Invalid command');
+                    console.log('*** Invalid command ***\n');
                     break;
             }
             // Small pause before redisplaying menu

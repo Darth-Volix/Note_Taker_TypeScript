@@ -39,7 +39,7 @@ async function main(): Promise<void> {
                 console.log('Goodbye!');
                 process.exit();
             default:
-                console.log('Invalid command');
+                console.log('*** Invalid command ***\n');
                 break;
         }
 

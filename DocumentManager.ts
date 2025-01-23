@@ -32,8 +32,8 @@ export class DocumentManager {
 
         while (!folderName) {
             folderName = await this.askQuestion("Enter a name for your folder: ");
-            if (folderName === null) {
-                console.log("Folder name cannot be null");
+            if (folderName === null || folderName.trim() === "") {
+                console.log("\n*** Folder name cannot be null ***\n");
             } else if (this.folders.find(folder => folder.folderName === folderName || folder.folderName.toLowerCase() === folderName?.toLowerCase())) {
                 console.log("\n*** Folder already exists ***\n");
                 folderName = null;
@@ -42,6 +42,9 @@ export class DocumentManager {
 
         this.folders.push(new Folder(folderName));
         console.log("\n*** Folder created successfully ***\n");
+        console.log("Please Wait...");
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        console.clear();
     }
 
     // Create a note
@@ -64,7 +67,7 @@ export class DocumentManager {
         while (!noteBody) {
             noteBody = await this.askQuestion("Enter your note: ");
             if (noteBody === null || noteBody.trim() === "") {
-                console.log("Note body cannot be null");
+                console.log("\n*** Note body cannot be null ***\n");
             }
         }
 
@@ -94,7 +97,7 @@ export class DocumentManager {
                             await new Promise(resolve => setTimeout(resolve, 2000));
                             console.clear();
                         } else {
-                            console.log("Please try again.");
+                            console.log("\n*** Folder Not Found. Please try again ***\n");
                         }
                     }
                 } else if (assign.toLowerCase() === 'new') {
@@ -109,7 +112,8 @@ export class DocumentManager {
                             newFound = true;
                             assigned = true;
 
-                            console.log("\n*** Note assigned successfully. Returning to main menu... ***\n");
+                            console.log("\n*** Note assigned successfully ***");
+                            console.log("Returning to main menu...");
                             await new Promise(resolve => setTimeout(resolve, 2000));
                             console.clear();
                         } else {
@@ -139,7 +143,6 @@ export class DocumentManager {
             folder.notes.push(note);
             return true;
         } else {
-            console.log("Folder not found or does not exist.");
             return false;
         }
     }
@@ -151,7 +154,7 @@ export class DocumentManager {
         } else {
             console.log("Folders: \n");
             this.folders.forEach((folder) => {
-                console.log(folder.folderName);
+                console.log(`- ${folder.folderName}`);
             });
             console.log("\n");
         }
@@ -188,7 +191,7 @@ export class DocumentManager {
             });
             console.log("\n");
         } else {
-            console.log("Folder not found or does not exist.");
+            console.log("\n*** Folder not found or does not exist ***\n");
         }
     }
 
@@ -217,20 +220,31 @@ export class DocumentManager {
     
         console.log(`Notes in folder '${folder.folderName}':`);
         folder.notes.forEach(note => console.log(`- ${note.noteTitle}`));
-    
+        
+        let note: Note | null = null;
         let noteName: string | null = null;
-        while (!noteName) {
+        
+        while (!note) {
             noteName = await this.askQuestion("\nWhat is the title of the note you would like to edit?: ");
+        
             if (!noteName.trim()) {
-                console.log("*** Note title cannot be empty ***");
-                noteName = null;
+                console.log("\n*** Note title cannot be empty ***");
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                console.clear();
+        
+                console.log(`Notes in folder '${folder.folderName}':`);
+                folder.notes.forEach(note => console.log(`- ${note.noteTitle}`));
+            } else {
+                note = folder.notes.find(note => note.noteTitle === noteName) ?? null;
+                if (!note) {
+                    console.log("\n*** Note not found ***\n");
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    console.clear();
+        
+                    console.log(`Notes in folder '${folder.folderName}':`);
+                    folder.notes.forEach(note => console.log(`- ${note.noteTitle}`));
+                }
             }
-        }
-    
-        const note = folder.notes.find(note => note.noteTitle === noteName);
-        if (!note) {
-            console.log("*** Note not found ***\n");
-            return;
         }
     
         // Display the note details
@@ -258,24 +272,32 @@ export class DocumentManager {
         let folderName: string | null = null;
     
         while (!folderName) {
+            // Clear the console at the start of each loop iteration
+            console.clear();
+    
+            // Display available folders for better user context
+            this.displayFolders();
+    
+            // Ask the user for the folder name
             folderName = await this.askQuestion("What is the name of the folder you are wanting to open?: ");
-            
+    
             if (!folderName || folderName.trim() === "") {
-                console.log("The name of the folder you are opening cannot be null or empty.");
-                folderName = null;
+                console.log("\n*** Invalid input. Please try again! ***\n");
+                folderName = null; // Reset folderName to repeat the loop
+                await new Promise(resolve => setTimeout(resolve, 2000)); // Pause briefly to show the error message
             } else {
-                const folder = this.searchForFolder(folderName);
+                const folder = this.searchForFolder(folderName.trim());
                 if (folder) {
-                    return folder;
+                    return folder; // Folder found, exit the function
                 } else {
-                    console.log("Folder not found.");
-                    folderName = null;
+                    console.log("\n*** Folder not found. Please try again! ***\n");
+                    folderName = null; // Reset folderName to repeat the loop
+                    await new Promise(resolve => setTimeout(resolve, 2000)); // Pause briefly to show the error message
                 }
             }
         }
     
-        // Should never be reached
+        // Should never be reached, but it's a safeguard
         return null;
     }
-    
 }
