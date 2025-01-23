@@ -4,13 +4,15 @@ async function main(): Promise<void> {
     let running: boolean = true;
     const documentManager: DocumentManager = new DocumentManager;
 
-    console.log('\nWelcome to your Notes App!\n');
+    console.clear();
+    console.log('Welcome to your Notes App!\n');
 
     while (running) {
         console.log('Commands:');
         console.log('       1. Create a Folder');
         console.log('       2. Create a Note');
-        console.log('       4. Display Folders');
+        console.log('       3. Display Folders');
+        console.log('       4. Display Folder Contents');
         console.log('       5. Edit a note');
         console.log('       6. Exit\n');
 
@@ -24,9 +26,13 @@ async function main(): Promise<void> {
                 console.clear();
                 await documentManager.createNote();
                 break;
-            case '4':
+            case '3':
                 console.clear();
                 documentManager.displayFolders();
+                break;
+            case '4':
+                console.clear();
+                await documentManager.displayFolderContents();
                 break;
             case '5':
                 console.clear();
@@ -34,8 +40,7 @@ async function main(): Promise<void> {
                 break;
             case '6':
                 console.log('Goodbye!');
-                running = false;
-                break;
+                process.exit();
             default:
                 console.log('Invalid command');
                 break

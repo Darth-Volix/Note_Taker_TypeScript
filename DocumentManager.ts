@@ -34,14 +34,14 @@ export class DocumentManager {
             folderName = await this.askQuestion("Enter a name for your folder: ");
             if (folderName === null) {
                 console.log("Folder name cannot be null");
-            } else if (this.folders.find(folder => folder.folderName === folderName)) {
-                console.log("Folder already exists");
+            } else if (this.folders.find(folder => folder.folderName === folderName || folder.folderName.toLowerCase() === folderName?.toLowerCase())) {
+                console.log("\n*** Folder already exists ***\n");
                 folderName = null;
             }
         }
 
         this.folders.push(new Folder(folderName));
-        console.log("Folder created successfully");
+        console.log("\n*** Folder created successfully ***\n");
     }
 
     // Create a note
@@ -50,26 +50,27 @@ export class DocumentManager {
         let noteBody: string | null = null;
 
         if (this.folders.length === 0) {
-            console.log("You must create a folder before creating a note.");
-            this.createFolder();
+            console.log("*** You must create a folder before creating a note ***\n");
+            await this.createFolder();
         }
 
         while (!noteTitle) {
             noteTitle = await this.askQuestion("Enter a title for your note: ");
-            if (noteTitle === null) {
-                console.log("Note title cannot be null");
+            if (noteTitle === null || noteTitle.trim() === "") {
+                console.log("\n*** Note title cannot be null ***\n");
             }
         }
 
         while (!noteBody) {
             noteBody = await this.askQuestion("Enter your note: ");
-            if (noteBody === null) {
+            if (noteBody === null || noteBody.trim() === "") {
                 console.log("Note body cannot be null");
             }
         }
 
         const note = new Note(noteTitle, noteBody);
         
+        console.clear();
         console.log("Note created successfully: ");
         this.displayNote(note);
 
@@ -77,8 +78,10 @@ export class DocumentManager {
             let assigned = false;
             while (!assigned) {
                 const assign = await this.askQuestion("Would you like to assign this note to a current folder or a new one? (type 'Current' or 'New'): ");
+                console.clear();
                 if (assign.toLowerCase() === 'current') {
                     let currentFound = false;
+
                     this.displayFolders();
 
                     while (!currentFound) {
@@ -86,12 +89,16 @@ export class DocumentManager {
                         if (this.assignNoteToFolder(note, folderName)) {
                             currentFound = true;
                             assigned = true;
+
+                            console.log("\n*** Note assigned successfully. Returning to main menu... ***\n");
+                            await new Promise(resolve => setTimeout(resolve, 4000));
+                            console.clear();
                         } else {
                             console.log("Please try again.");
                         }
                     }
                 } else if (assign.toLowerCase() === 'new') {
-                    this.createFolder();
+                    await this.createFolder();
                     this.displayFolders();
 
                     let newFound = false;
@@ -101,6 +108,10 @@ export class DocumentManager {
                         if (this.assignNoteToFolder(note, folderName)) {
                             newFound = true;
                             assigned = true;
+
+                            console.log("\n*** Note assigned successfully. Returning to main menu... ***\n");
+                            await new Promise(resolve => setTimeout(resolve, 4000));
+                            console.clear();
                         } else {
                             console.log("Please try again.");
                         }
@@ -114,11 +125,11 @@ export class DocumentManager {
 
     // Display a note to the terminal
     displayNote(note: Note): void {
-        console.log("------------------------------------------------");
+        console.log("----------------------------------------------------------------------");
         console.log(`Date: ${note.noteDate}`);
         console.log(`Title: ${note.noteTitle}`);
         console.log(`Body: ${note.noteBody}`);
-        console.log("------------------------------------------------");
+        console.log("----------------------------------------------------------------------");
     }
 
     // Add a note to a folder
@@ -126,7 +137,7 @@ export class DocumentManager {
         const folder = this.searchForFolder(folderName);
         if (folder) {
             folder.notes.push(note);
-            console.log("Note assigned to folder successfully.");
+            console.log("\n*** Note assigned to folder successfully ***\n");
             return true;
         } else {
             console.log("Folder not found or does not exist.");
@@ -135,20 +146,47 @@ export class DocumentManager {
     }
 
     displayFolders(): void {
-        console.log("Folders: ");
-        this.folders.forEach((folder) => {
-            console.log(folder.folderName);
-        });
+        if (this.folders.length === 0) {
+            console.log("*** No folders found ***\n");
+        } else {
+            console.log("Folders: \n");
+            this.folders.forEach((folder) => {
+                console.log(folder.folderName);
+            });
+            console.log("\n");
+        }
     }
 
     // View the contents of a folder
-    async displayFolderContents(folderName: string) : Promise<void> {
+    async displayFolderContents(): Promise<void> {
+        if (this.folders.length === 0) {
+            console.log("*** No folders found ***\n");
+            return;
+        }
+
+        console.clear();
+
+        this.displayFolders();
+
         const folder = await this.userSearchForFolder();
 
         if (folder){
+
+            if (folder.notes.length === 0) {
+                console.log("\n*** Folder is empty ***\n");
+                console.log("Returning to main menu...");
+
+                await new Promise(resolve => setTimeout(resolve, 4000));
+                console.clear();
+
+                return;
+            }
+
+            console.log(`\nFolder: ${folder.folderName}\n`);
             folder.notes.forEach((Note) => {
                this.displayNote(Note);
             });
+            console.log("\n");
         } else {
             console.log("Folder not found or does not exist.");
         }
@@ -157,6 +195,11 @@ export class DocumentManager {
     // Edit a note
     async editNote(): Promise<void> {
         let noteName: string | null = null;
+
+        if (this.folders.length === 0) {
+            console.log("*** No folders found ***\n");
+            return;
+        }
 
         const folder = await this.userSearchForFolder();
 
@@ -181,57 +224,34 @@ export class DocumentManager {
        }
     }
 
-    // Search for a folder
+    // Abstracted code to search for a folder
     searchForFolder(folderName: string): Folder | null { 
         return this.folders.find(folder => folder.folderName === folderName) || null;
     }
 
+    // User code to search for a folder
     async userSearchForFolder(): Promise<Folder | null> {
         let folderName: string | null = null;
-        let openOrSearch: string | null = null;
-
-        while (!openOrSearch) {
-            openOrSearch = await this.askQuestion("Are you wanting to search for a folder or open a folder? (type 'Search' or 'Open'): ")
-
-            if (openOrSearch.toLowerCase() === 'search') {
-                while (!folderName){
-                    folderName = await this.askQuestion("What is the name of the folder you are wanting to look for?: ")
-                    if (!folderName || folderName.trim() === ""){
-                        console.log("The name of the folder you are searching for cannot be null or empty.");
-                        folderName = null;
-                    } else {
-                        const folder = this.searchForFolder(folderName);
-                        if (folder) {
-                            return folder;
-                        } else {
-                            console.log("Folder not found.");
-                            folderName = null;
-                        }
-                    }
-                }
-            } else if (openOrSearch.toLowerCase() === 'open'){
-                while (!folderName){
-                    folderName = await this.askQuestion("What is the name of the folder you are wanting to look for?: ")
-                    if (!folderName || folderName.trim() === ""){
-                        console.log("The name of the folder you are opening cannot be null or empty.");
-                        folderName = null;
-                    } else {
-                        const folder = this.searchForFolder(folderName);
-                        if (folder) {
-                            return folder;
-                        } else {
-                            console.log("Folder not found.");
-                            folderName = null;
-                        }
-                    }
-                }
+    
+        while (!folderName) {
+            folderName = await this.askQuestion("What is the name of the folder you are wanting to open?: ");
+            
+            if (!folderName || folderName.trim() === "") {
+                console.log("The name of the folder you are opening cannot be null or empty.");
+                folderName = null;
             } else {
-                console.log("That is not a valid option, please try again.");
-                openOrSearch = null;
+                const folder = this.searchForFolder(folderName);
+                if (folder) {
+                    return folder;
+                } else {
+                    console.log("Folder not found.");
+                    folderName = null;
+                }
             }
         }
-
+    
         // Should never be reached
         return null;
     }
+    
 }
