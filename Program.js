@@ -13,7 +13,7 @@ const DocumentManager_1 = require("./DocumentManager");
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         let running = true;
-        const documentManager = new DocumentManager_1.DocumentManager;
+        const documentManager = new DocumentManager_1.DocumentManager();
         console.clear();
         console.log('Welcome to your Notes App!\n');
         while (running) {
@@ -25,25 +25,21 @@ function main() {
             console.log('       5. Edit a note');
             console.log('       6. Exit\n');
             let userChoice = yield documentManager.askQuestion('Enter a command: ');
+            console.clear();
             switch (userChoice) {
                 case '1':
-                    console.clear();
                     yield documentManager.createFolder();
                     break;
                 case '2':
-                    console.clear();
                     yield documentManager.createNote();
                     break;
                 case '3':
-                    console.clear();
                     documentManager.displayFolders();
                     break;
                 case '4':
-                    console.clear();
                     yield documentManager.displayFolderContents();
                     break;
                 case '5':
-                    console.clear();
                     yield documentManager.editNote();
                     break;
                 case '6':
@@ -53,6 +49,8 @@ function main() {
                     console.log('Invalid command');
                     break;
             }
+            // Small pause before redisplaying menu
+            yield new Promise(resolve => setTimeout(resolve, 100));
         }
     });
 }

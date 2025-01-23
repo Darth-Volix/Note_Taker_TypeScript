@@ -2,7 +2,7 @@ import { DocumentManager } from './DocumentManager';
 
 async function main(): Promise<void> {
     let running: boolean = true;
-    const documentManager: DocumentManager = new DocumentManager;
+    const documentManager: DocumentManager = new DocumentManager();
 
     console.clear();
     console.log('Welcome to your Notes App!\n');
@@ -17,25 +17,22 @@ async function main(): Promise<void> {
         console.log('       6. Exit\n');
 
         let userChoice = await documentManager.askQuestion('Enter a command: ');
+        console.clear();
+
         switch (userChoice) {
             case '1':
-                console.clear();
                 await documentManager.createFolder();
                 break;
             case '2':
-                console.clear();
                 await documentManager.createNote();
                 break;
             case '3':
-                console.clear();
                 documentManager.displayFolders();
                 break;
             case '4':
-                console.clear();
                 await documentManager.displayFolderContents();
                 break;
             case '5':
-                console.clear();
                 await documentManager.editNote();
                 break;
             case '6':
@@ -43,8 +40,11 @@ async function main(): Promise<void> {
                 process.exit();
             default:
                 console.log('Invalid command');
-                break
+                break;
         }
+
+        // Small pause before redisplaying menu
+        await new Promise(resolve => setTimeout(resolve, 100));
     }
 }
 

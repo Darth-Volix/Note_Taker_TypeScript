@@ -108,7 +108,7 @@ class DocumentManager {
             if (this.folders.length > 0) {
                 let assigned = false;
                 while (!assigned) {
-                    const assign = yield this.askQuestion("Would you like to assign this note to a current folder or a new one? (type 'Current' or 'New'): ");
+                    const assign = yield this.askQuestion("\nWould you like to assign this note to a current folder or a new one? (type 'Current' or 'New'): ");
                     console.clear();
                     if (assign.toLowerCase() === 'current') {
                         let currentFound = false;
@@ -165,7 +165,6 @@ class DocumentManager {
         const folder = this.searchForFolder(folderName);
         if (folder) {
             folder.notes.push(note);
-            console.log("\n*** Note assigned to folder successfully ***\n");
             return true;
         }
         else {
@@ -173,8 +172,8 @@ class DocumentManager {
             return false;
         }
     }
+    // Display all folders
     displayFolders() {
-        console.clear();
         if (this.folders.length === 0) {
             console.log("*** No folders found ***\n");
         }
@@ -203,7 +202,8 @@ class DocumentManager {
                     console.clear();
                     return;
                 }
-                console.log(`\nFolder: ${folder.folderName}\n`);
+                console.clear();
+                console.log(`Folder: ${folder.folderName}\n`);
                 folder.notes.forEach((Note) => {
                     this.displayNote(Note);
                 });
@@ -214,32 +214,52 @@ class DocumentManager {
             }
         });
     }
-    // Edit a note
     editNote() {
         return __awaiter(this, void 0, void 0, function* () {
-            let noteName = null;
             if (this.folders.length === 0) {
                 console.log("*** No folders found ***\n");
                 return;
             }
+            // Clear and display folders once
+            console.clear();
+            console.log("Available Folders:");
+            this.displayFolders();
             const folder = yield this.userSearchForFolder();
+            if (!folder) {
+                console.log("*** Folder not found ***\n");
+                return;
+            }
+            // Display notes in the folder
+            console.clear();
+            if (folder.notes.length === 0) {
+                console.log("*** No notes found in this folder ***\n");
+                return;
+            }
+            console.log(`Notes in folder '${folder.folderName}':`);
+            folder.notes.forEach(note => console.log(`- ${note.noteTitle}`));
+            let noteName = null;
             while (!noteName) {
-                noteName = yield this.askQuestion("What is the title of the note you would like to edit?: ");
-                if (noteName === null || "") {
-                    console.log("The title of the note you want to edit cannot be null or empty.");
+                noteName = yield this.askQuestion("\nWhat is the title of the note you would like to edit?: ");
+                if (!noteName.trim()) {
+                    console.log("*** Note title cannot be empty ***");
+                    noteName = null;
                 }
             }
-            const note = folder === null || folder === void 0 ? void 0 : folder.notes.find(note => note.noteTitle === noteName);
+            const note = folder.notes.find(note => note.noteTitle === noteName);
             if (!note) {
-                console.log("Note does not exist.");
+                console.log("*** Note not found ***\n");
+                return;
             }
-            else {
-                console.log("Here are the details of the note: ");
-                this.displayNote(note);
-                const newNoteBody = yield this.askQuestion("Enter your changes to the body of the note: ");
-                note.noteBody = newNoteBody;
-                console.log("Note updated successfully.");
-            }
+            // Display the note details
+            console.clear();
+            console.log("\nCurrent Note Details:");
+            this.displayNote(note);
+            // Update the note
+            const newNoteBody = yield this.askQuestion("\nEnter your changes to the note body: ");
+            note.noteBody = newNoteBody.trim();
+            console.log("\n*** Note updated successfully ***");
+            yield new Promise(resolve => setTimeout(resolve, 2000));
+            console.clear();
         });
     }
     // Abstracted code to search for a folder
