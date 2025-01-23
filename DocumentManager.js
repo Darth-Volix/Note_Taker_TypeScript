@@ -115,8 +115,8 @@ class DocumentManager {
                     console.clear();
                     if (assign.toLowerCase() === 'current') {
                         let currentFound = false;
-                        this.displayFolders();
                         while (!currentFound) {
+                            this.displayFolders();
                             const folderName = yield this.askQuestion("Enter the name of the folder you would like to assign the note to: ");
                             if (this.assignNoteToFolder(note, folderName)) {
                                 currentFound = true;
@@ -127,14 +127,16 @@ class DocumentManager {
                             }
                             else {
                                 console.log("\n*** Folder Not Found. Please try again ***\n");
+                                yield new Promise(resolve => setTimeout(resolve, 2000));
+                                console.clear();
                             }
                         }
                     }
                     else if (assign.toLowerCase() === 'new') {
                         yield this.createFolder();
-                        this.displayFolders();
                         let newFound = false;
                         while (!newFound) {
+                            this.displayFolders();
                             const folderName = yield this.askQuestion("Enter the name of the folder you would like to assign the note to: ");
                             if (this.assignNoteToFolder(note, folderName)) {
                                 newFound = true;
@@ -145,7 +147,9 @@ class DocumentManager {
                                 console.clear();
                             }
                             else {
-                                console.log("Please try again.");
+                                console.log("*** Folder Not Found. Please try again ***\n");
+                                yield new Promise(resolve => setTimeout(resolve, 2000));
+                                console.clear();
                             }
                         }
                     }
