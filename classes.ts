@@ -1,7 +1,6 @@
 // This file contains the interfaces and classes for the Document Manager application
 
 // Import the readline module
-import { promises } from 'dns';
 import * as readline from 'readline';
 
 // Define the interfaces
