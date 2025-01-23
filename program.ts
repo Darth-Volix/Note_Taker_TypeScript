@@ -17,15 +17,19 @@ async function main(): Promise<void> {
         let userChoice = await documentManager.askQuestion('Enter a command: ');
         switch (userChoice) {
             case '1':
+                console.clear();
                 await documentManager.createFolder();
                 break;
             case '2':
+                console.clear();
                 await documentManager.createNote();
                 break;
             case '4':
+                console.clear();
                 documentManager.displayFolders();
                 break;
             case '5':
+                console.clear();
                 await documentManager.editNote();
                 break;
             case '6':
