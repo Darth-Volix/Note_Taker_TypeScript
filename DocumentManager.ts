@@ -1,48 +1,9 @@
-// This file contains the interfaces and classes for the Document Manager application
+// Import the Note and Folder classes
+import { Note } from './Note';
+import { Folder } from './Folder';
 
 // Import the readline module
 import * as readline from 'readline';
-
-// Define the interfaces
-
-interface NoteInterface {
-    noteDate: Date;
-    noteTitle: string;
-    noteBody: string;
-}
-
-interface FolderInterface {
-    folderName: string;
-    notes: NoteInterface[];
-}
-
-// Define the Classes
-
-export class Note implements NoteInterface {
-    // Properties
-    noteDate: Date;
-    noteTitle: string;
-    noteBody: string;
-
-    // Constructor
-    constructor(noteTitle: string, noteBody: string) {
-        this.noteDate = new Date();
-        this.noteTitle = noteTitle;
-        this.noteBody = noteBody;
-    }
-}
-
-export class Folder implements FolderInterface{
-    // Properties
-    folderName: string;
-    notes: Note[];
-
-    // Constructor 
-    constructor(folderName: string) {
-        this.folderName = folderName;
-        this.notes = [];
-    }
-}
 
 export class DocumentManager {
     // Properties
@@ -115,7 +76,38 @@ export class DocumentManager {
         if (this.folders.length > 0) {
             let assigned = false;
             while (!assigned) {
-                
+                const assign = await this.askQuestion("Would you like to assign this note to a current folder or a new one? (type 'Current' or 'New'): ");
+                if (assign.toLowerCase() === 'current') {
+                    let currentFound = false;
+                    this.displayFolders();
+
+                    while (!currentFound) {
+                        const folderName = await this.askQuestion("Enter the name of the folder you would like to assign the note to: ");
+                        if (this.assignNoteToFolder(note, folderName)) {
+                            currentFound = true;
+                            assigned = true;
+                        } else {
+                            console.log("Please try again.");
+                        }
+                    }
+                } else if (assign.toLowerCase() === 'new') {
+                    this.createFolder();
+                    this.displayFolders();
+
+                    let newFound = false;
+
+                    while (!newFound) {
+                        const folderName = await this.askQuestion("Enter the name of the folder you would like to assign the note to: ");
+                        if (this.assignNoteToFolder(note, folderName)) {
+                            newFound = true;
+                            assigned = true;
+                        } else {
+                            console.log("Please try again.");
+                        }
+                    }
+                } else {
+                    console.log("That is not a valid option, please try again.");
+                }
             }
         }
     }
@@ -130,12 +122,15 @@ export class DocumentManager {
     }
 
     // Add a note to a folder
-    assignNoteToFolder(note: Note, folderName: string): void {
+    assignNoteToFolder(note: Note, folderName: string): boolean {
         const folder = this.searchForFolder(folderName);
         if (folder) {
             folder.notes.push(note);
+            console.log("Note assigned to folder successfully.");
+            return true;
         } else {
             console.log("Folder not found or does not exist.");
+            return false;
         }
     }
 
