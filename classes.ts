@@ -84,9 +84,14 @@ export class DocumentManager {
     }
 
     // Create a note
-    async createNote(): Promise<Note> {
+    async createNote(): Promise<void> {
         let noteTitle: string | null = null;
         let noteBody: string | null = null;
+
+        if (this.folders.length === 0) {
+            console.log("You must create a folder before creating a note.");
+            this.createFolder();
+        }
 
         while (!noteTitle) {
             noteTitle = await this.askQuestion("Enter a title for your note: ");
@@ -102,7 +107,17 @@ export class DocumentManager {
             }
         }
 
-        return new Note(noteTitle, noteBody);
+        const note = new Note(noteTitle, noteBody);
+        
+        console.log("Note created successfully: ");
+        this.displayNote(note);
+
+        if (this.folders.length > 0) {
+            let assigned = false;
+            while (!assigned) {
+                
+            }
+        }
     }
 
     // Display a note to the terminal
@@ -116,7 +131,7 @@ export class DocumentManager {
 
     // Add a note to a folder
     assignNoteToFolder(note: Note, folderName: string): void {
-        const folder = this.folders.find(folder => folder.folderName === folderName);
+        const folder = this.searchForFolder(folderName);
         if (folder) {
             folder.notes.push(note);
         } else {
@@ -124,9 +139,16 @@ export class DocumentManager {
         }
     }
 
+    displayFolders(): void {
+        console.log("Folders: ");
+        this.folders.forEach((folder) => {
+            console.log(folder.folderName);
+        });
+    }
+
     // View the contents of a folder
     async displayFolderContents(folderName: string) : Promise<void> {
-        const folder = await this.searchForFolder();
+        const folder = await this.userSearchForFolder();
 
         if (folder){
             folder.notes.forEach((Note) => {
@@ -141,7 +163,7 @@ export class DocumentManager {
     async editNote(): Promise<void> {
         let noteName: string | null = null;
 
-        const folder = await this.searchForFolder();
+        const folder = await this.userSearchForFolder();
 
         while (!noteName) {
             noteName = await this.askQuestion("What is the title of the note you would like to edit?: ");
@@ -164,7 +186,12 @@ export class DocumentManager {
        }
     }
 
-    async searchForFolder(): Promise<Folder | null> {
+    // Search for a folder
+    searchForFolder(folderName: string): Folder | null { 
+        return this.folders.find(folder => folder.folderName === folderName) || null;
+    }
+
+    async userSearchForFolder(): Promise<Folder | null> {
         let folderName: string | null = null;
         let openOrSearch: string | null = null;
 
@@ -178,7 +205,7 @@ export class DocumentManager {
                         console.log("The name of the folder you are searching for cannot be null or empty.");
                         folderName = null;
                     } else {
-                        const folder = this.folders.find(folder => folder.folderName === folderName);
+                        const folder = this.searchForFolder(folderName);
                         if (folder) {
                             return folder;
                         } else {
@@ -194,7 +221,7 @@ export class DocumentManager {
                         console.log("The name of the folder you are opening cannot be null or empty.");
                         folderName = null;
                     } else {
-                        const folder = this.folders.find(folder => folder.folderName === folderName);
+                        const folder = this.searchForFolder(folderName);
                         if (folder) {
                             return folder;
                         } else {
