@@ -1,4 +1,4 @@
-import { DocumentManager } from './documentManager';
+import { DocumentManager } from './DocumentManager';
 
 async function main(): Promise<void> {
     let running: boolean = true;
@@ -17,16 +17,16 @@ async function main(): Promise<void> {
         let userChoice = await documentManager.askQuestion('Enter a command: ');
         switch (userChoice) {
             case '1':
-                documentManager.createFolder();
+                await documentManager.createFolder();
                 break;
             case '2':
-                documentManager.createNote();
+                await documentManager.createNote();
                 break;
             case '4':
                 documentManager.displayFolders();
                 break;
             case '5':
-                documentManager.editNote();
+                await documentManager.editNote();
                 break;
             case '6':
                 console.log('Goodbye!');
