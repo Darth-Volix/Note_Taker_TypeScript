@@ -46,68 +46,88 @@ exports.DocumentManager = void 0;
 // Import the Note and Folder classes
 const Note_1 = require("./Note");
 const Folder_1 = require("./Folder");
-// Import the readline module
+// Import the readline module to handle user input
 const readline = __importStar(require("readline"));
 class DocumentManager {
-    // Constructor
+    // Constructor 
     constructor() {
         this.folders = [];
-        // Initialize the readline interface
+        // Create a readline interface for user input and output
         this.rl = readline.createInterface({
             input: process.stdin,
             output: process.stdout
         });
     }
-    // Abstract away the readline question functionality
+    /**
+     * Prompts the user with a query and returns their input as a promise.
+     * @param query - The question to ask the user.
+     * @returns A promise that resolves to the user's input.
+     */
     askQuestion(query) {
         return new Promise(resolve => this.rl.question(query, resolve));
     }
-    // Add a folder
+    /**
+     * Creates a new folder by prompting the user for a unique folder name.
+     * Ensures that the folder name is valid and not a duplicate.
+     */
     createFolder() {
         return __awaiter(this, void 0, void 0, function* () {
             let folderName = null;
+            // Loop until a valid folder name is provided
             while (!folderName) {
                 folderName = yield this.askQuestion("Enter a name for your folder: ");
+                // Validate folder name
                 if (folderName === null || folderName.trim() === "") {
                     console.log("\n*** Folder name cannot be null ***\n");
                 }
-                else if (this.folders.find(folder => folder.folderName === folderName || folder.folderName.toLowerCase() === (folderName === null || folderName === void 0 ? void 0 : folderName.toLowerCase()))) {
+                else if (this.folders.find(folder => folder.folderName === folderName ||
+                    folder.folderName.toLowerCase() === (folderName === null || folderName === void 0 ? void 0 : folderName.toLowerCase()))) {
                     console.log("\n*** Folder already exists ***\n");
                     folderName = null;
                 }
             }
+            // Add the new folder to the folders array
             this.folders.push(new Folder_1.Folder(folderName));
             console.log("\n*** Folder created successfully ***\n");
             console.log("Please Wait...");
+            // Pause briefly and clear the console
             yield new Promise(resolve => setTimeout(resolve, 2000));
             console.clear();
         });
     }
-    // Create a note
+    /**
+     * Creates a new note by prompting the user for a title and body.
+     * Ensures a folder exists before assigning the note to a folder.
+     */
     createNote() {
         return __awaiter(this, void 0, void 0, function* () {
             let noteTitle = null;
             let noteBody = null;
+            // Ensure at least one folder exists before creating a note
             if (this.folders.length === 0) {
                 console.log("*** You must create a folder before creating a note ***\n");
                 yield this.createFolder();
             }
+            // Prompt user for note title
             while (!noteTitle) {
                 noteTitle = yield this.askQuestion("Enter a title for your note: ");
                 if (noteTitle === null || noteTitle.trim() === "") {
                     console.log("\n*** Note title cannot be null ***\n");
                 }
             }
+            // Prompt user for note body
             while (!noteBody) {
                 noteBody = yield this.askQuestion("Enter your note: ");
                 if (noteBody === null || noteBody.trim() === "") {
                     console.log("\n*** Note body cannot be null ***\n");
                 }
             }
+            // Create the note and display it
             const note = new Note_1.Note(noteTitle, noteBody);
             console.clear();
             console.log("Note created successfully: ");
             this.displayNote(note);
+            // Assign the note to a folder
             if (this.folders.length > 0) {
                 let assigned = false;
                 while (!assigned) {
@@ -115,13 +135,15 @@ class DocumentManager {
                     console.clear();
                     if (assign.toLowerCase() === 'current') {
                         let currentFound = false;
+                        // Prompt user to select an existing folder
                         while (!currentFound) {
                             this.displayFolders();
                             const folderName = yield this.askQuestion("Enter the name of the folder you would like to assign the note to: ");
                             if (this.assignNoteToFolder(note, folderName)) {
                                 currentFound = true;
                                 assigned = true;
-                                console.log("\n*** Note assigned successfully. Returning to main menu... ***\n");
+                                console.log("\n*** Note assigned successfully ***");
+                                console.log("\nReturning to main menu...");
                                 yield new Promise(resolve => setTimeout(resolve, 2000));
                                 console.clear();
                             }
@@ -133,6 +155,7 @@ class DocumentManager {
                         }
                     }
                     else if (assign.toLowerCase() === 'new') {
+                        // Create a new folder and assign the note to it
                         yield this.createFolder();
                         let newFound = false;
                         while (!newFound) {
@@ -142,7 +165,7 @@ class DocumentManager {
                                 newFound = true;
                                 assigned = true;
                                 console.log("\n*** Note assigned successfully ***");
-                                console.log("Returning to main menu...");
+                                console.log("\nReturning to main menu...");
                                 yield new Promise(resolve => setTimeout(resolve, 2000));
                                 console.clear();
                             }
@@ -160,7 +183,10 @@ class DocumentManager {
             }
         });
     }
-    // Display a note to the terminal
+    /**
+     * Displays the details of a note, including the date, title, and body.
+     * @param note - The note to display.
+     */
     displayNote(note) {
         console.log("----------------------------------------------------------------------");
         console.log(`Date: ${note.noteDate}`);
@@ -168,7 +194,12 @@ class DocumentManager {
         console.log(`Body: ${note.noteBody}`);
         console.log("----------------------------------------------------------------------");
     }
-    // Add a note to a folder
+    /**
+     * Assigns a note to a folder by the given folder name.
+     * @param note - The note to assign.
+     * @param folderName - The name of the folder to assign the note to.
+     * @returns True if the folder is found and the note is assigned; otherwise, false.
+     */
     assignNoteToFolder(note, folderName) {
         const folder = this.searchForFolder(folderName);
         if (folder) {
@@ -179,7 +210,10 @@ class DocumentManager {
             return false;
         }
     }
-    // Display all folders
+    /**
+     * Displays all folders and their names.
+     * If no folders exist, informs the user.
+     */
     displayFolders() {
         if (this.folders.length === 0) {
             console.log("*** No folders found ***\n");
@@ -192,27 +226,32 @@ class DocumentManager {
             console.log("\n");
         }
     }
-    // View the contents of a folder
+    /**
+     * Displays the contents of a selected folder, including its notes.
+     * If the folder is empty, informs the user and returns to the main menu.
+     */
     displayFolderContents() {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.folders.length === 0) {
                 console.log("*** No folders found ***\n");
                 return;
             }
+            // Show all available folders
             this.displayFolders();
             const folder = yield this.userSearchForFolder();
             if (folder) {
                 if (folder.notes.length === 0) {
-                    console.log("\n*** Folder is empty ***\n");
-                    console.log("Returning to main menu...");
+                    console.log("\n*** Folder is empty ***");
+                    console.log("\nReturning to main menu...");
                     yield new Promise(resolve => setTimeout(resolve, 2000));
                     console.clear();
                     return;
                 }
+                // Display the folder's notes
                 console.clear();
                 console.log(`Folder: ${folder.folderName}\n`);
-                folder.notes.forEach((Note) => {
-                    this.displayNote(Note);
+                folder.notes.forEach((note) => {
+                    this.displayNote(note);
                 });
                 console.log("\n");
             }
@@ -221,31 +260,39 @@ class DocumentManager {
             }
         });
     }
+    /**
+     * Allows the user to edit an existing note in a selected folder.
+     * Prompts the user to select a folder, choose a note, and update its body content.
+     * Provides feedback if no folders or notes are found.
+     */
     editNote() {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
+            // Check if there are any folders available
             if (this.folders.length === 0) {
                 console.log("*** No folders found ***\n");
                 return;
             }
-            // Clear and display folders once
+            // Clear the console and display the list of folders
             console.clear();
             this.displayFolders();
+            // Prompt the user to select a folder
             const folder = yield this.userSearchForFolder();
             if (!folder) {
                 console.log("*** Folder not found ***\n");
                 return;
             }
-            // Display notes in the folder
+            // Clear the console and display notes in the selected folder
             console.clear();
             if (folder.notes.length === 0) {
                 console.log("*** No notes found in this folder ***\n");
                 return;
             }
-            console.log(`Notes in folder '${folder.folderName}':`);
+            console.log(`Notes in folder '${folder.folderName}':\n`);
             folder.notes.forEach(note => console.log(`- ${note.noteTitle}`));
             let note = null;
             let noteName = null;
+            // Loop to ensure a valid note is selected
             while (!note) {
                 noteName = yield this.askQuestion("\nWhat is the title of the note you would like to edit?: ");
                 if (!noteName.trim()) {
@@ -266,27 +313,39 @@ class DocumentManager {
                     }
                 }
             }
-            // Display the note details
+            // Clear the console and display the current note details
             console.clear();
             console.log("Current Note Details:");
             this.displayNote(note);
-            // Update the note
+            // Prompt the user to update the note body
             const newNoteBody = yield this.askQuestion("\nEnter your changes to the note body: ");
             note.noteBody = newNoteBody.trim();
-            console.log("\n*** Note updated successfully ***\n");
-            console.log("Returning to main menu...");
+            // Confirm successful update and return to the main menu
+            console.log("\n*** Note updated successfully ***");
+            console.log("\nReturning to main menu...");
             yield new Promise(resolve => setTimeout(resolve, 2000));
             console.clear();
         });
     }
-    // Abstracted code to search for a folder
+    /**
+     * Searches for a folder in the `folders` array by its name.
+     *
+     * @param folderName - The name of the folder to search for.
+     * @returns The matching Folder object, or null if not found.
+     */
     searchForFolder(folderName) {
         return this.folders.find(folder => folder.folderName === folderName) || null;
     }
-    // User code to search for a folder
+    /**
+     * Prompts the user to search for a folder by entering its name.
+     * Provides feedback and retries until a valid folder is found or the user cancels.
+     *
+     * @returns The selected Folder object, or null if not found.
+     */
     userSearchForFolder() {
         return __awaiter(this, void 0, void 0, function* () {
             let folderName = null;
+            // Loop to ensure a valid folder is selected
             while (!folderName) {
                 // Clear the console at the start of each loop iteration
                 console.clear();

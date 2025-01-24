@@ -22,7 +22,7 @@ function main() {
             console.log('       2. Create a Note');
             console.log('       3. Display Folders');
             console.log('       4. Display Folder Contents');
-            console.log('       5. Edit a note');
+            console.log('       5. Edit a Note');
             console.log('       6. Exit\n');
             let userChoice = yield documentManager.askQuestion('Enter a command: ');
             console.clear();
@@ -49,7 +49,7 @@ function main() {
                     console.log('*** Invalid command ***\n');
                     break;
             }
-            // Small pause before redisplaying menu
+            // Small pause before redisplaying menu to user so that the program avoids issues with async console output
             yield new Promise(resolve => setTimeout(resolve, 100));
         }
     });
