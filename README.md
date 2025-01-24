@@ -4,11 +4,9 @@ I am seeking to further my knowledge and tool set for web development. A very co
 
 The software application written here is an application that allows a user to create, edit, and organize notes into folders. For modularity, the code is split into different classes, each given their own file. For each class, you will see defined properties, constructors, with the presence of methods varying based on what was needed for that class. The Program.ts file contains main(), which is serves as the entry point of the program and contains a user interface that is run in the terminal, allowing the user to interact with the program. Each method has a docstring to give a brief summary of what the method does, and there are explanatory comments throughout the program to assist with clarity and understanding. 
 
-I wrote this particular piece of software to give me a kind of challenge I had never attempted to tackle with JavaScript before, which is to write software using TypeScript/JavaScript that is not meant for a web application and is purely terminal based. It also allowed continued practice with OOP principles and served to further solidify what I had learned about TypeScript. It also meant I ran into problems with TypeScript/JavaScript that I had not had to worry about before, such as retrieving input from the terminal (something that I had to do asynchronously using the readline module from Node.js).
+I wrote this particular piece of software to give me a kind of challenge I had never attempted to tackle with JavaScript before, which is to write software using TypeScript/JavaScript that is not meant for a web application and is purely terminal based. It also allowed continued practice with OOP principles and served to further solidify what I had learned about TypeScript. It also meant I ran into problems with TypeScript/JavaScript that I had not had to worry about before, such as retrieving input from the terminal (something that I had to do asynchronously using the readline module from Node.js). I was able to succesfully learn how to solve those problems and any other minor ones I ran into.
 
-{Provide a link to your YouTube demonstration. It should be a 4-5 minute demo of the software running and a walkthrough of the code. Focus should be on sharing what you learned about the language syntax.}
-
-[Software Demo Video](http://youtube.link.goes.here)
+[Software Demo Video](https://youtu.be/KnW5f3JdfXk)
 
 # Development Environment
 
