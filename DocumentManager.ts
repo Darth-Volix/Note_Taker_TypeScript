@@ -102,14 +102,14 @@ export class DocumentManager {
 
         // Assign the note to a folder
         if (this.folders.length > 0) {
-            let assigned = false;
+            let assigned: boolean = false;
 
             while (!assigned) {
                 const assign = await this.askQuestion("\nWould you like to assign this note to a current folder or a new one? (type 'Current' or 'New'): ");
                 console.clear();
 
                 if (assign.toLowerCase() === 'current') {
-                    let currentFound = false;
+                    let currentFound: boolean = false;
 
                     // Prompt user to select an existing folder
                     while (!currentFound) {
@@ -132,7 +132,7 @@ export class DocumentManager {
                 } else if (assign.toLowerCase() === 'new') {
                     // Create a new folder and assign the note to it
                     await this.createFolder();
-                    let newFound = false;
+                    let newFound: boolean = false;
 
                     while (!newFound) {
                         this.displayFolders();
@@ -177,7 +177,7 @@ export class DocumentManager {
      * @returns True if the folder is found and the note is assigned; otherwise, false.
      */
     assignNoteToFolder(note: Note, folderName: string): boolean {
-        const folder = this.searchForFolder(folderName);
+        const folder: Folder | null = this.searchForFolder(folderName);
 
         if (folder) {
             folder.notes.push(note);
@@ -216,7 +216,7 @@ export class DocumentManager {
         // Show all available folders
         this.displayFolders();
 
-        const folder = await this.userSearchForFolder();
+        const folder: Folder | null = await this.userSearchForFolder();
 
         if (folder) {
             if (folder.notes.length === 0) {
@@ -257,7 +257,7 @@ export class DocumentManager {
         this.displayFolders();
 
         // Prompt the user to select a folder
-        const folder = await this.userSearchForFolder();
+        const folder: Folder | null = await this.userSearchForFolder();
         if (!folder) {
             console.log("*** Folder not found ***\n");
             return;
@@ -306,7 +306,7 @@ export class DocumentManager {
         this.displayNote(note);
 
         // Prompt the user to update the note body
-        const newNoteBody = await this.askQuestion("\nEnter your changes to the note body: ");
+        const newNoteBody: string = await this.askQuestion("\nEnter your changes to the note body: ");
         note.noteBody = newNoteBody.trim();
 
         // Confirm successful update and return to the main menu
